@@ -1,0 +1,30 @@
+{
+  "name": "soleasy",
+  "version": "0.0.1",
+  "description": "Make solidity so easy",
+  "main": "index.js",
+  "scripts": {
+    "build": "npx tsc",
+    "start": "node ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/juancolchete/soleasy.git"
+  },
+  "keywords": [
+    "solidity"
+  ],
+  "author": "Juan Colchete",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/juancolchete/soleasy/issues"
+  },
+  "homepage": "https://github.com/juancolchete/soleasy#readme",
+  "dependencies": {
+    "surya": "^0.4.6",
+    "typescript": "^5.1.6"
+  },
+  "devDependencies": {
+    "@types/node": "^20.4.8"
+  }
+}
