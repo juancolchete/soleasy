@@ -1,6 +1,6 @@
 {
   "name": "soleasy",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Make solidity so easy",
   "main": "index.js",
   "scripts": {
