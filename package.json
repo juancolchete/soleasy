@@ -1,6 +1,6 @@
 {
   "name": "soleasy",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Make solidity so easy",
   "main": "index.js",
   "scripts": {
@@ -26,5 +26,8 @@
   },
   "devDependencies": {
     "@types/node": "^20.4.8"
+  },
+  "bin": {
+    "soleasy": "index.js"
   }
 }
