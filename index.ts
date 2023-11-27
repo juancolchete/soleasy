@@ -1,9 +1,10 @@
 #! /usr/bin/env node
 import { exec } from "child_process";
+import File from "./models/File";
 
 const cliFunctions:any = {
   genABI: ()=>{
-    console.log("genABI")
+    console.log(File.getFilesFromDirectory("./artifacts/contracts/",".sol"))
   },
   compile: ()=>{
     exec(`npx surya parse contract/test.sol --json true`, (error: any, stdout: string, stderr: any) => {
