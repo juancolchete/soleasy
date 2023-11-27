@@ -1,8 +1,6 @@
 #! /usr/bin/env node
 import { exec } from "child_process";
 
-console.log("Made Solidity easy")
-
 const cliFunctions:any = {
   genABI: ()=>{
     console.log("genABI")
