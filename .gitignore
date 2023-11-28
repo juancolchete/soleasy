@@ -2,3 +2,4 @@ node_modules
 .yarn
 contract
 index.js
+artifacts

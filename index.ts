@@ -1,10 +1,21 @@
 #! /usr/bin/env node
 import { exec } from "child_process";
 import File from "./models/File";
+import fs from "fs";
 
 const cliFunctions:any = {
   genABI: ()=>{
-    console.log(File.getFilesFromDirectory("./artifacts/contracts/",".sol"))
+    const contracts = File.getFilesFromDirectory("./artifacts/contracts/",".sol")
+    let contractsAbis:{[key: string] : any} = {}
+    for(let i=0;i < contracts.length;i++){
+      const contractName = contracts[i].substring(0,contracts[i].length-4)
+      console.log(contractName)
+      let rawData = fs.readFileSync(`./artifacts/contracts/${contractName}.sol/${contractName}.json`)
+      let contractData = JSON.parse(rawData.toString())
+      contractsAbis[`${contractName}_ABI`] = contractData.abi
+    }
+    File.createDir("./out")
+    File.generateFile("./out/contracts.json",JSON.stringify(contractsAbis, null, 2))
   },
   compile: ()=>{
     exec(`npx surya parse contract/test.sol --json true`, (error: any, stdout: string, stderr: any) => {
