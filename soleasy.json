@@ -1,0 +1,10 @@
+[
+  {
+    "name": "contracts",
+    "contracts": ["HelloWorld","EstruturasCondicionais","Lock"]
+  },
+  {
+    "name": "contracts2",
+    "contracts":["Variaveis","MeuToken"]
+  }
+]

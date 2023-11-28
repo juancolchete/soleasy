@@ -10,6 +10,25 @@ function splitStringOnCapital(inputString:string):string[] {
 const cliFunctions:any = {
   genABI: ()=>{
     const contracts = File.getFilesFromDirectory("./artifacts/contracts/",".sol")
+    let rawSoleasy = fs.readFileSync(`./soleasy.json`)
+    let soleasy = JSON.parse(rawSoleasy.toString())
+    for(let s = 0; s < soleasy.length;s++){
+      let contractsAbis:{[key: string] : any} = {}
+      for(let i=0;i < contracts.length;i++){
+        const contractName = contracts[i].substring(0,contracts[i].length-4)
+        if(soleasy[s].contracts.indexOf(contractName) > -1){
+          let rawData = fs.readFileSync(`./artifacts/contracts/${contractName}.sol/${contractName}.json`)
+          let contractData = JSON.parse(rawData.toString())
+          let contractNameFormated = splitStringOnCapital(contractName).join("_").toUpperCase()
+          contractsAbis[`${contractNameFormated}_ABI`] = contractData.abi
+        }
+      }
+      File.createDir("./out")
+      File.generateFile(`./out/${soleasy[s].name}.json`,JSON.stringify(contractsAbis, null, 2))
+    }
+  },
+  genABIAll: ()=>{
+    const contracts = File.getFilesFromDirectory("./artifacts/contracts/",".sol")
     let contractsAbis:{[key: string] : any} = {}
     for(let i=0;i < contracts.length;i++){
       const contractName = contracts[i].substring(0,contracts[i].length-4)
