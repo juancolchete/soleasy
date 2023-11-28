@@ -3,6 +3,10 @@ import { exec } from "child_process";
 import File from "./models/File";
 import fs from "fs";
 
+function splitStringOnCapital(inputString:string):string[] {
+  return inputString.split(/(?=[A-Z])/);
+}
+
 const cliFunctions:any = {
   genABI: ()=>{
     const contracts = File.getFilesFromDirectory("./artifacts/contracts/",".sol")
@@ -12,7 +16,8 @@ const cliFunctions:any = {
       console.log(contractName)
       let rawData = fs.readFileSync(`./artifacts/contracts/${contractName}.sol/${contractName}.json`)
       let contractData = JSON.parse(rawData.toString())
-      contractsAbis[`${contractName}_ABI`] = contractData.abi
+      let contractNameFormated = splitStringOnCapital(contractName).join("_").toUpperCase()
+      contractsAbis[`${contractNameFormated}_ABI`] = contractData.abi
     }
     File.createDir("./out")
     File.generateFile("./out/contracts.json",JSON.stringify(contractsAbis, null, 2))
