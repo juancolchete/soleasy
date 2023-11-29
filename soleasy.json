@@ -1,10 +1,12 @@
 [
   {
     "name": "contracts",
-    "contracts": ["HelloWorld","EstruturasCondicionais","Lock"]
+    "contracts": ["HelloWorld","EstruturasCondicionais","Lock"],
+    "abiName": ["HELLO_WORLD_ABI","ESTRUTURAS_CONDICIONAIS_ABI","LOCK_ABI"]
   },
   {
     "name": "contracts2",
-    "contracts":["Variaveis","MeuToken"]
+    "contracts":["Variaveis","MeuToken"],
+    "abiName": ["VARIAVES_ABI","MEU_TOKEN_ABI"]
   }
 ]

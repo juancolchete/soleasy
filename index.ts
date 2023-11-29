@@ -19,8 +19,7 @@ const cliFunctions:any = {
         if(soleasy[s].contracts.indexOf(contractName) > -1){
           let rawData = fs.readFileSync(`./artifacts/contracts/${contractName}.sol/${contractName}.json`)
           let contractData = JSON.parse(rawData.toString())
-          let contractNameFormated = splitStringOnCapital(contractName).join("_").toUpperCase()
-          contractsAbis[`${contractNameFormated}_ABI`] = contractData.abi
+          contractsAbis[soleasy[s].abiName[soleasy[s].contracts.indexOf(contractName)]] = contractData.abi
         }
       }
       File.createDir("./out")
