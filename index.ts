@@ -2,35 +2,36 @@
 import { exec } from "child_process";
 import File from "./models/File";
 import fs from "fs";
+const cliArgs = process.argv.slice(2)
 
-function splitStringOnCapital(inputString:string):string[] {
+function splitStringOnCapital(inputString: string): string[] {
   return inputString.split(/(?=[A-Z])/);
 }
 
-const cliFunctions:any = {
-  genABI: ()=>{
-    const contracts = File.getFilesFromDirectory("./artifacts/contracts/",".sol")
+const cliFunctions: any = {
+  genABI: () => {
+    const contracts = File.getFilesFromDirectory("./artifacts/contracts/", ".sol")
     let rawSoleasy = fs.readFileSync(`./soleasy.json`)
     let soleasy = JSON.parse(rawSoleasy.toString())
-    for(let s = 0; s < soleasy.length;s++){
-      let contractsAbis:{[key: string] : any} = {}
-      for(let i=0;i < contracts.length;i++){
-        const contractName = contracts[i].substring(0,contracts[i].length-4)
-        if(soleasy[s].contracts.indexOf(contractName) > -1){
+    for (let s = 0; s < soleasy.length; s++) {
+      let contractsAbis: { [key: string]: any } = {}
+      for (let i = 0; i < contracts.length; i++) {
+        const contractName = contracts[i].substring(0, contracts[i].length - 4)
+        if (soleasy[s].contracts.indexOf(contractName) > -1) {
           let rawData = fs.readFileSync(`./artifacts/contracts/${contractName}.sol/${contractName}.json`)
           let contractData = JSON.parse(rawData.toString())
           contractsAbis[soleasy[s].abiName[soleasy[s].contracts.indexOf(contractName)]] = contractData.abi
         }
       }
       File.createDir("./out")
-      File.generateFile(`./out/${soleasy[s].name}.json`,JSON.stringify(contractsAbis, null, 2))
+      File.generateFile(`./out/${soleasy[s].name}.json`, JSON.stringify(contractsAbis, null, 2))
     }
   },
-  genABIAll: ()=>{
-    const contracts = File.getFilesFromDirectory("./artifacts/contracts/",".sol")
-    let contractsAbis:{[key: string] : any} = {}
-    for(let i=0;i < contracts.length;i++){
-      const contractName = contracts[i].substring(0,contracts[i].length-4)
+  genABIAll: () => {
+    const contracts = File.getFilesFromDirectory("./artifacts/contracts/", ".sol")
+    let contractsAbis: { [key: string]: any } = {}
+    for (let i = 0; i < contracts.length; i++) {
+      const contractName = contracts[i].substring(0, contracts[i].length - 4)
       console.log(contractName)
       let rawData = fs.readFileSync(`./artifacts/contracts/${contractName}.sol/${contractName}.json`)
       let contractData = JSON.parse(rawData.toString())
@@ -38,9 +39,9 @@ const cliFunctions:any = {
       contractsAbis[`${contractNameFormated}_ABI`] = contractData.abi
     }
     File.createDir("./out")
-    File.generateFile("./out/contracts.json",JSON.stringify(contractsAbis, null, 2))
+    File.generateFile("./out/contracts.json", JSON.stringify(contractsAbis, null, 2))
   },
-  compile: ()=>{
+  compile: () => {
     exec(`npx surya parse contract/test.sol --json true`, (error: any, stdout: string, stderr: any) => {
       if (error) {
         console.log(`error: ${error.message}`);
@@ -51,10 +52,16 @@ const cliFunctions:any = {
         return;
       }
       let contractData = JSON.parse(stdout);
-        console.log(contractData)
-      });
-    }
+      console.log(contractData)
+    });
+  },
+  genSigs: () => {
+    const contractName = cliArgs[1]
+    let rawData = fs.readFileSync(`./artifacts/contracts/${contractName}.sol/${contractName}.json`)
+    let contractData = JSON.parse(rawData.toString())
+    const fnSigs = contractData
+    console.log(fnSigs)
+  }
 }
 
-const cliArgs = process.argv.slice(2)
 cliFunctions[cliArgs[0]]();
