@@ -55,12 +55,26 @@ const cliFunctions: any = {
       console.log(contractData)
     });
   },
-  genSigs: () => {
+  genSigs: () =>{
     const contractName = cliArgs[1]
-    let rawData = fs.readFileSync(`./artifacts/contracts/${contractName}.sol/${contractName}.json`)
-    let contractData = JSON.parse(rawData.toString())
-    const fnSigs = contractData
-    console.log(fnSigs)
+    const dataType = cliArgs?.[2]
+    let rawData = fs.readFileSync(`artifacts/contracts/${contractName}.sol/${contractName}.dbg.json`)
+    let buildDataPath = JSON.parse(rawData.toString())
+    let rawBuildData = fs.readFileSync(`artifacts/${buildDataPath.buildInfo.slice(6, buildDataPath.buildInfo.length)}`)
+    const buildData = JSON.parse(rawBuildData.toString())
+    let output = buildData.output.contracts[`contracts/${contractName}.sol`][contractName]
+    if(dataType?.toLowerCase() == "json"){
+      console.log(output.evm.methodIdentifiers)
+    }else{
+      const fnSigs = output.evm.methodIdentifiers
+      const fnSigsKeys = Object.keys(fnSigs)
+      const fnSigsValues = Object.values(fnSigs)
+      let textFnSigs = ""
+      for(let i=0;i<fnSigsKeys.length;i++){
+        textFnSigs += `${fnSigsKeys[i]}: ${fnSigsValues[i]}${i < fnSigsKeys.length -1 ? "\n" : ""}`
+      }
+      console.log(textFnSigs)
+    }
   }
 }
 
