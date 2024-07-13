@@ -75,6 +75,30 @@ const cliFunctions: any = {
       }
       console.log(textFnSigs)
     }
+  },
+  genIFn: ()=>{
+    const contractName = cliArgs[1]
+    let rawData = fs.readFileSync(`artifacts/contracts/${contractName}.sol/${contractName}.json`)
+    let data = JSON.parse(rawData.toString())
+    const contractABI = data.abi;
+    let fnInterfaces = ""
+    for(let i=0; i < contractABI.length; i++){
+      if(contractABI[i]?.name){
+        fnInterfaces += `${contractABI[i].type} ${contractABI[i].name}(`
+        const parameters = contractABI[i].inputs
+        for(let p=0; p < parameters.length; p++){
+          fnInterfaces += `${parameters[p].type} ${parameters[p].name}`  
+          if(p < parameters.length-1){
+            fnInterfaces += `,`
+          }
+        }
+        fnInterfaces += `) external`
+        if(i < contractABI.length-1){
+          fnInterfaces += `\n`
+        }
+      }
+    }
+    console.log(fnInterfaces)
   }
 }
 
