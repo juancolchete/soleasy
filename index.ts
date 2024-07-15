@@ -86,17 +86,35 @@ const cliFunctions: any = {
       if(contractABI[i]?.name){
         fnInterfaces += `${contractABI[i].type} ${contractABI[i].name}(`
         const parameters = contractABI[i].inputs
-        for(let p=0; p < parameters.length; p++){
-          fnInterfaces += `${parameters[p].type} ${parameters[p].name}`  
+        for(let p=0; p < parameters?.length; p++){
+          fnInterfaces += `${parameters[p].type}`  
+          if(parameters[p]?.name?.length > 0){
+            fnInterfaces += ` ${parameters[p].name}`
+          }
           if(p < parameters.length-1){
-            fnInterfaces += `,`
+            fnInterfaces += `, `
           }
         }
         let stateMutability = ""
         if(contractABI[i]?.stateMutability != "nonpayable"){
           stateMutability = contractABI[i].stateMutability 
         }
-        fnInterfaces += `) external ${stateMutability}`
+        fnInterfaces += `) external ${stateMutability}` 
+        const outputs = contractABI[i].outputs
+        if(outputs?.length > 0){
+        fnInterfaces += ` returns (`
+        for(let o=0; o < outputs?.length; o++){
+          fnInterfaces += `${outputs[o].type}`  
+          if(outputs[o]?.name?.length > 0){
+            fnInterfaces += ` ${outputs[o].name}`
+          }
+          if(o < outputs.length-1){
+            fnInterfaces += `, `
+          }
+        }
+        fnInterfaces += `)`
+
+        }
         if(i < contractABI.length-1){
           fnInterfaces += `\n`
         }
