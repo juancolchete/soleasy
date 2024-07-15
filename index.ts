@@ -92,7 +92,11 @@ const cliFunctions: any = {
             fnInterfaces += `,`
           }
         }
-        fnInterfaces += `) external`
+        let stateMutability = ""
+        if(contractABI[i]?.stateMutability != "nonpayable"){
+          stateMutability = contractABI[i].stateMutability 
+        }
+        fnInterfaces += `) external ${stateMutability}`
         if(i < contractABI.length-1){
           fnInterfaces += `\n`
         }
