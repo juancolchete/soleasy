@@ -101,10 +101,14 @@ const cliFunctions: any = {
           }
         }
         let stateMutability = ""
-        if(contractABI[i]?.stateMutability != "nonpayable"){
-          stateMutability = contractABI[i].stateMutability 
+        if(contractABI[i]?.stateMutability != null
+           && contractABI[i]?.stateMutability != "nonpayable"){
+          stateMutability = " "+contractABI[i].stateMutability 
         }
-        fnInterfaces += `) external ${stateMutability}` 
+        fnInterfaces += `)` 
+        if(contractABI[i].type == "function"){
+          fnInterfaces += ` external${stateMutability}` 
+        }
         const outputs = contractABI[i].outputs
         if(outputs?.length > 0){
         fnInterfaces += ` returns (`
@@ -120,9 +124,10 @@ const cliFunctions: any = {
             fnInterfaces += `, `
           }
         }
-        fnInterfaces += `);`
+        fnInterfaces += `)`
 
         }
+        fnInterfaces += `;`
         if(i < contractABI.length-1){
           fnInterfaces += `\n`
         }
