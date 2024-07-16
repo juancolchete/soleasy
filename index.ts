@@ -120,7 +120,7 @@ const cliFunctions: any = {
             fnInterfaces += `, `
           }
         }
-        fnInterfaces += `)`
+        fnInterfaces += `);`
 
         }
         if(i < contractABI.length-1){
