@@ -78,7 +78,8 @@ const cliFunctions: any = {
   },
   genIFn: ()=>{
     const contractName = cliArgs[1]
-    const specialTypes = ["string","bytes","bytes32"]
+    const specialTypesCalldata = ["string"]
+    const specialTypesMemory = ["bytes","bytes[]"]
     let rawData = fs.readFileSync(`artifacts/contracts/${contractName}.sol/${contractName}.json`)
     let data = JSON.parse(rawData.toString())
     const contractABI = data.abi;
@@ -89,8 +90,13 @@ const cliFunctions: any = {
         const parameters = contractABI[i].inputs
         for(let p=0; p < parameters?.length; p++){
           fnInterfaces += `${parameters[p].type}`  
-          if(specialTypes.indexOf(parameters[p].type) > -1 || parameters[p].type.indexOf("[]") > -1 ){
-            fnInterfaces += ` calldata`
+          if(contractABI[i].type == "function"){
+            if(specialTypesMemory.indexOf(parameters[p].type) > -1){
+              fnInterfaces += ` memory`
+            }else if(specialTypesCalldata.indexOf(parameters[p].type) > -1 
+            || parameters[p].type.indexOf("[]") > -1){
+              fnInterfaces += ` calldata`
+            }
           }
           
           if(parameters[p]?.name?.length > 0){
@@ -114,7 +120,7 @@ const cliFunctions: any = {
         fnInterfaces += ` returns (`
         for(let o=0; o < outputs?.length; o++){
           fnInterfaces += `${outputs[o].type}`
-          if(specialTypes.indexOf(outputs[o].type) > -1 || outputs[o].type.indexOf("[]") > -1 ){
+          if(specialTypesCalldata.indexOf(outputs[o].type) > -1 || outputs[o].type.indexOf("[]") > -1 ){
             fnInterfaces += ` memory`
           }
           if(outputs[o]?.name?.length > 0){
