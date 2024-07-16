@@ -78,6 +78,7 @@ const cliFunctions: any = {
   },
   genIFn: ()=>{
     const contractName = cliArgs[1]
+    const specialTypes = ["string","bytes","bytes32"]
     let rawData = fs.readFileSync(`artifacts/contracts/${contractName}.sol/${contractName}.json`)
     let data = JSON.parse(rawData.toString())
     const contractABI = data.abi;
@@ -88,6 +89,10 @@ const cliFunctions: any = {
         const parameters = contractABI[i].inputs
         for(let p=0; p < parameters?.length; p++){
           fnInterfaces += `${parameters[p].type}`  
+          if(specialTypes.indexOf(parameters[p].type) > -1 || parameters[p].type.indexOf("[]") > -1 ){
+            fnInterfaces += ` calldata`
+          }
+          
           if(parameters[p]?.name?.length > 0){
             fnInterfaces += ` ${parameters[p].name}`
           }
@@ -104,7 +109,10 @@ const cliFunctions: any = {
         if(outputs?.length > 0){
         fnInterfaces += ` returns (`
         for(let o=0; o < outputs?.length; o++){
-          fnInterfaces += `${outputs[o].type}`  
+          fnInterfaces += `${outputs[o].type}`
+          if(specialTypes.indexOf(outputs[o].type) > -1 || outputs[o].type.indexOf("[]") > -1 ){
+            fnInterfaces += ` memory`
+          }
           if(outputs[o]?.name?.length > 0){
             fnInterfaces += ` ${outputs[o].name}`
           }
