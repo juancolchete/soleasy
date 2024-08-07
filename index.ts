@@ -2,6 +2,7 @@
 import { exec } from "child_process";
 import File from "./models/File";
 import fs from "fs";
+import { ethers } from "ethers";
 const cliArgs = process.argv.slice(2)
 
 function splitStringOnCapital(inputString: string): string[] {
@@ -57,23 +58,15 @@ const cliFunctions: any = {
   },
   genSigs: () =>{
     const contractName = cliArgs[1]
-    const dataType = cliArgs?.[2]
-    let rawData = fs.readFileSync(`artifacts/contracts/${contractName}.sol/${contractName}.dbg.json`)
-    let buildDataPath = JSON.parse(rawData.toString())
-    let rawBuildData = fs.readFileSync(`artifacts/${buildDataPath.buildInfo.slice(6, buildDataPath.buildInfo.length)}`)
-    const buildData = JSON.parse(rawBuildData.toString())
-    let output = buildData.output.contracts[`contracts/${contractName}.sol`][contractName]
-    if(dataType?.toLowerCase() == "json"){
-      console.log(output.evm.methodIdentifiers)
-    }else{
-      const fnSigs = output.evm.methodIdentifiers
-      const fnSigsKeys = Object.keys(fnSigs)
-      const fnSigsValues = Object.values(fnSigs)
-      let textFnSigs = ""
-      for(let i=0;i<fnSigsKeys.length;i++){
-        textFnSigs += `${fnSigsKeys[i]}: ${fnSigsValues[i]}${i < fnSigsKeys.length -1 ? "\n" : ""}`
+    let rawData = fs.readFileSync(`artifacts/contracts/${contractName}.sol/${contractName}.json`)
+    let artifact = JSON.parse(rawData.toString())
+    console.log(artifact.abi)
+    let contractInterface = new ethers.Interface(artifact.abi) 
+    let ikeys = Object.keys(contractInterface.fragments)
+    for(let i=0; i < contractInterface.fragments.length;i++){
+      if(contractInterface.fragments[i].type != "constructor"){
+        console.log(`${contractInterface.fragments[i].format()}:${ethers.id(contractInterface.fragments[i].format()).substring(0,10)}`)
       }
-      console.log(textFnSigs)
     }
   },
   genIFn: ()=>{
