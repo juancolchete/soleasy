@@ -58,15 +58,88 @@ const cliFunctions: any = {
   },
   genSigs: () =>{
     const contractName = cliArgs[1]
-    let rawData = fs.readFileSync(`artifacts/contracts/${contractName}.sol/${contractName}.json`)
-    let artifact = JSON.parse(rawData.toString())
-    console.log(artifact.abi)
-    let contractInterface = new ethers.Interface(artifact.abi) 
-    let ikeys = Object.keys(contractInterface.fragments)
-    for(let i=0; i < contractInterface.fragments.length;i++){
-      if(contractInterface.fragments[i].type != "constructor"){
-        console.log(`${contractInterface.fragments[i].format()}:${ethers.id(contractInterface.fragments[i].format()).substring(0,10)}`)
+    const ext = cliArgs[2]
+    if(ext == "json"){
+      let rawData = fs.readFileSync(`artifacts/contracts/${contractName}.sol/${contractName}.json`)
+      let artifact = JSON.parse(rawData.toString())
+      let contractInterface = new ethers.Interface(artifact.abi) 
+      for(let i=0; i < contractInterface.fragments.length;i++){
+        if(contractInterface.fragments[i].type != "constructor"){
+          console.log(`${contractInterface.fragments[i].format()}:${ethers.id(contractInterface.fragments[i].format()).substring(0,10)}`)
+        }
       }
+    }else if(ext == "sol"){
+      let contractContent = fs.readFileSync(`contracts/${contractName}.sol`,'utf-8')
+      let open = false
+      let openStruct = false
+      let functions: string[] = []
+      let structs: string[] = []
+      let functionItem: string = ""
+      let structItem: string = ""
+      let specialTypes: {[key: string]:string} = {}
+      contractContent.split(/r?\n/).forEach((line:string)=>{
+        if(line.indexOf("struct") > -1){
+          openStruct = true
+          structItem += line
+        }else if(openStruct == true){
+          structItem += line
+        }
+        if(structItem.indexOf("struct ") > -1 && structItem.indexOf("}") > -1){
+          structs.push(structItem)
+        }
+        if(openStruct == true && structItem.indexOf("}") > -1){
+          structItem = ""
+          openStruct = false
+        }
+        if(line.indexOf("function")>-1){
+          open = true
+          functionItem += line
+        }else if(open == true){
+          functionItem += line
+        }
+        if(functionItem.indexOf("function") > -1 && functionItem.indexOf(")") > -1){
+          functions.push(functionItem)
+        }
+        if(open && line.indexOf(")") > -1){
+          functionItem = ""
+          open = false
+        }
+      })
+      for(let s=0; s < structs.length;s++){
+        const structBracket = structs[s].split("{")
+        const structName = structBracket[0].replace("struct","").replaceAll(" ","")
+        const structPropertiesRaw = structBracket[1].replace("}","").split(";")
+        let structAsTuple = "("
+        for(let p=0; p < structPropertiesRaw.length; p++){
+          let wsRegex = /^\s+/g
+          let structPropertyType = structPropertiesRaw[p].replace(wsRegex,"")
+          structPropertyType = structPropertyType.slice(0,structPropertyType.indexOf(" "))
+          structAsTuple += `${structPropertyType},`
+        }
+        structAsTuple = `${structAsTuple.substring(0,structAsTuple.length-2)})`
+        specialTypes[structName] = structAsTuple 
+      }
+      for(let f=0; f < functions.length;f++){
+        const functionRaw = functions[f].split("(")
+        const functionName = functionRaw[0].replace("function","").replaceAll(" ","")
+        const functionParamsRaw = functionRaw[1].replace(")","").split(",")
+        let functionParams = "("
+        for(let p=0; p < functionParamsRaw.length; p++){
+          let wsRegex = /^\s+/g
+          let functionParamType = functionParamsRaw[p].replace(wsRegex,"")
+          functionParamType = functionParamType.slice(0,functionParamType.indexOf(" "))
+          if(Object.keys(specialTypes).indexOf(functionParamType) > -1){
+            functionParams += `${specialTypes[functionParamType]},`
+          }else{
+            functionParams += `${functionParamType},`
+          }
+        }
+        functionParams = `${functionParams.substring(0,functionParams.length-1)})`
+        const functionVerbSig = `${functionName}${functionParams}`
+        console.log(`${functionVerbSig}: ${ethers.id(functionVerbSig).substring(0,10)}`)
+      }
+    }else{
+      console.log("Invalid extension valid ones are json and sol")
     }
   },
   genIFn: ()=>{

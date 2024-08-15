@@ -2,6 +2,7 @@ node_modules
 .yarn
 .obsidian
 contract
+contracts
 index.js
 artifacts
 build
