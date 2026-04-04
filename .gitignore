@@ -7,3 +7,4 @@ index.js
 artifacts
 build
 out
+.direnv
