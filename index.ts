@@ -11,7 +11,11 @@ function splitStringOnCapital(inputString: string): string[] {
 
 const cliFunctions: any = {
   genABI: () => {
-    const contracts = File.getFilesFromDirectory("./artifacts/contracts/", ".sol")
+    let artifactsPath = "./artifacts/contracts/";
+    if(cliArgs[1].length > 0){
+      artifactsPath = cliArgs[1];
+    }
+    const contracts = File.getFilesFromDirectory(`${artifactsPath}`, ".sol")
     let rawSoleasy = fs.readFileSync(`./soleasy.json`)
     let soleasy = JSON.parse(rawSoleasy.toString())
     for (let s = 0; s < soleasy.length; s++) {
@@ -19,7 +23,7 @@ const cliFunctions: any = {
       for (let i = 0; i < contracts.length; i++) {
         const contractName = contracts[i].substring(0, contracts[i].length - 4)
         if (soleasy[s].contracts.indexOf(contractName) > -1) {
-          let rawData = fs.readFileSync(`./artifacts/contracts/${contractName}.sol/${contractName}.json`)
+          let rawData = fs.readFileSync(`${artifactsPath}${contractName}.sol/${contractName}.json`)
           let contractData = JSON.parse(rawData.toString())
           contractsAbis[soleasy[s].abiName[soleasy[s].contracts.indexOf(contractName)]] = contractData.abi
         }
@@ -29,12 +33,16 @@ const cliFunctions: any = {
     }
   },
   genABIAll: () => {
-    const contracts = File.getFilesFromDirectory("./artifacts/contracts/", ".sol")
+    let artifactsPath = "./artifacts/contracts/";
+    if(cliArgs[1].length > 0){
+      artifactsPath = cliArgs[1];
+    }
+    const contracts = File.getFilesFromDirectory(`${artifactsPath}`, ".sol")
     let contractsAbis: { [key: string]: any } = {}
     for (let i = 0; i < contracts.length; i++) {
       const contractName = contracts[i].substring(0, contracts[i].length - 4)
       console.log(contractName)
-      let rawData = fs.readFileSync(`./artifacts/contracts/${contractName}.sol/${contractName}.json`)
+      let rawData = fs.readFileSync(`${artifactsPath}${contractName}.sol/${contractName}.json`)
       let contractData = JSON.parse(rawData.toString())
       let contractNameFormated = splitStringOnCapital(contractName).join("_").toUpperCase()
       contractsAbis[`${contractNameFormated}_ABI`] = contractData.abi
